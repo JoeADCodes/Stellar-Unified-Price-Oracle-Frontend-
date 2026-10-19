@@ -42,7 +42,7 @@ export type { SybilRisk, SourceReputationScore } from './governance'
 // #696 — Treasury and incentive accounting
 export type { AccountingPeriod, IncentiveLedgerEntry, SourceIncentiveSummary } from './governance'
 // #695 — Dispute and challenge process
-export type { DisputeStatus, DisputeEvidence, DisputeComment, PriceDispute } from './governance'
+export type { DisputeStatus, DisputeEvidence, DisputeComment, DisputeStatusTransition, PriceDispute } from './governance'
 
 // On-chain price / proof types — see src/types/onChainPrice.ts
 export type { OnChainPriceRecord, SourceContribution, PriceProof } from './onChainPrice'
