@@ -142,6 +142,14 @@ export const GovernanceProposalCard = memo(function GovernanceProposalCard({
         </div>
       )}
 
+      {proposal.proposedParameterChanges && proposal.proposedParameterChanges.length > 0 && (
+        <ProposedParameterDiff
+          changes={proposal.proposedParameterChanges}
+          proposalId={proposal.id}
+          compact
+        />
+      )}
+
       {/* ── Tally ── */}
       <section aria-label={`Vote tally for ${proposal.id}`} className="flex flex-col gap-2">
         {shares === null ? (
@@ -195,6 +203,9 @@ export const GovernanceProposalCard = memo(function GovernanceProposalCard({
               : `${participation.toFixed(1)}% of eligible voting power participated`}
           </span>
         </div>
+
+        {/* ── #853 Quorum, eligibility, and deadline explainer ── */}
+        <ProposalVotingRulesExplainer proposal={proposal} now={now} />
       </section>
 
       {/* ── Stale-status caveat ── */}

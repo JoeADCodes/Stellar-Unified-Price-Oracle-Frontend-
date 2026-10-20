@@ -6,6 +6,7 @@ import type {
   SourceReputationScore,
   SourceIncentiveSummary,
   PriceDispute,
+  SourceCertification,
   PriceData,
   PriceHistoryResponse,
   PriceProof,
