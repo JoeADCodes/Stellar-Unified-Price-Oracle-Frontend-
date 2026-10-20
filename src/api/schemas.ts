@@ -1,5 +1,4 @@
 import { z } from 'zod'
-import { isSecureProvenanceUrl } from '../utils/provenance'
 
 /**
  * Strict Zod schema for {@link import('../types/price').PriceData}.
@@ -318,6 +317,21 @@ export const VoteTallySchema = z.object({
   abstain: z.number().int().min(0),
 })
 
+// ── #851 Proposed parameter change schema ───────────────────────────────────
+
+export const ProposedParameterChangeSchema = z.object({
+  paramKey: z.string().min(1),
+  paramName: z.string().min(1),
+  category: z.string().min(1),
+  currentValue: z.string().nullable(),
+  proposedValue: z.string().nullable(),
+  diffType: z.enum(['modify', 'add', 'remove']),
+  rationale: z.string().nullable().optional(),
+  unit: z.string().nullable().optional(),
+})
+
+export const ProposedParameterChangesSchema = z.array(ProposedParameterChangeSchema)
+
 /**
  * Strict schema for {@link import('../types/governance').GovernanceProposal}.
  * All fields are required (nullable ones must be explicitly `null`, not absent)
@@ -335,6 +349,7 @@ export const GovernanceProposalSchema = z.object({
   totalVotingPower: z.number().finite().nonnegative().nullable(),
   category: z.string().nullable(),
   relatedSources: z.array(z.string()),
+  proposedParameterChanges: z.array(ProposedParameterChangeSchema).nullable().optional(),
 })
 
 /** Response of `GET /api/governance/proposals`. */
@@ -391,25 +406,7 @@ export const TreasuryEntrySchema = z.object({
 
 export const TreasurySchema = z.array(TreasuryEntrySchema)
 
-// ── #695 Dispute schemas ──────────────────────────────────────────────────────
 
-export const PriceDisputeSchema = z.object({
-  id: z.string().min(1),
-  assetPair: z.string().min(1),
-  disputedPrice: z.number().finite(),
-  priceTimestamp: z.number().int().min(0),
-  status: z.enum(['open', 'under_review', 'resolved', 'dismissed']),
-  challenger: z.string().min(1),
-  reason: z.string().min(1),
-  evidenceUrl: z.string().nullable(),
-  createdAt: z.number().int().min(0),
-  resolvedAt: z.number().int().min(0).nullable(),
-  outcome: z.enum(['upheld', 'rejected', 'inconclusive']).nullable(),
-  resolutionNotes: z.string().nullable(),
-  flaggedSources: z.array(z.string()),
-})
-
-export const PriceDisputesSchema = z.array(PriceDisputeSchema)
 
 // ── Type inference from schemas ──────────────────────────────────────────────
 
@@ -521,3 +518,5 @@ export const PriceDisputeSchema = z.object({
   resolutionNote: z.string().nullable(),
   statusTransitions: z.array(DisputeStatusTransitionSchema).optional(),
 })
+
+export const PriceDisputesSchema = z.array(PriceDisputeSchema)

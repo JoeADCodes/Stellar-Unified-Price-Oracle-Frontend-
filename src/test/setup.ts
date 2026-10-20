@@ -20,49 +20,32 @@ afterEach(() => {
   cleanup()
 })
 
-// In Node 22+, Node's experimental globalThis.localStorage overrides jsdom's window.localStorage
-// without implementing full Storage methods (e.g. clear, setItem). Provide an in-memory Storage implementation.
+// Ensure localStorage is functional in node/jsdom test environment
 if (typeof window !== 'undefined') {
-  const storeMap = new Map<string, string>()
-
-  if (typeof Storage !== 'undefined') {
-    Storage.prototype.clear = function () {
-      storeMap.clear()
-    }
-    Storage.prototype.getItem = function (key: string) {
-      return storeMap.has(key) ? storeMap.get(key)! : null
-    }
-    Storage.prototype.setItem = function (key: string, value: string) {
-      storeMap.set(key, String(value))
-    }
-    Storage.prototype.removeItem = function (key: string) {
-      storeMap.delete(key)
-    }
-    Storage.prototype.key = function (index: number) {
-      return Array.from(storeMap.keys())[index] ?? null
-    }
-    Object.defineProperty(Storage.prototype, 'length', {
-      get: function () {
-        return storeMap.size
-      },
-      configurable: true,
-    })
-
-    const storageInstance = Object.create(Storage.prototype)
-    delete (globalThis as Record<string, unknown>).localStorage
-    Object.defineProperty(globalThis, 'localStorage', {
-      value: storageInstance,
-      writable: true,
-      configurable: true,
-    })
-    Object.defineProperty(window, 'localStorage', {
-      value: storageInstance,
-      writable: true,
-      configurable: true,
-    })
+  const memoryStore = new Map<string, string>()
+  const mockStorage: Storage = {
+    getItem: (key: string) => memoryStore.get(key) ?? null,
+    setItem: (key: string, value: string) => {
+      memoryStore.set(key, String(value))
+    },
+    removeItem: (key: string) => {
+      memoryStore.delete(key)
+    },
+    clear: () => {
+      memoryStore.clear()
+    },
+    key: (index: number) => Array.from(memoryStore.keys())[index] ?? null,
+    get length() {
+      return memoryStore.size
+    },
+  }
+  Object.defineProperty(window, 'localStorage', { value: mockStorage, writable: true, configurable: true })
+  try {
+    Object.defineProperty(globalThis, 'localStorage', { value: mockStorage, writable: true, configurable: true })
+  } catch {
+    // ignore
   }
 }
-
 
 class ResizeObserverMock {
   observe = () => {}
